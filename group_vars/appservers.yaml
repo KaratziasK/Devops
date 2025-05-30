@@ -1,0 +1,15 @@
+appdir:  "/tmp/project"
+branch: "main"
+appuser: "azure-spring"
+appgroup: "azure-spring"
+app_port: 8080
+backend_server_url: "http://4.210.73.93:8080"
+app:
+  VITE_BACKEND:  http://4.210.73.93
+  env:
+    server.port: "{{app_port}}"
+    spring.datasource.url: jdbc:postgresql://52.236.122.57:5432/{{ db.name }}
+    spring.datasource.username: "{{ db.user }}"
+    spring.datasource.password: "{{ db.password }}"
+
+    EMAIL_USERNAME: "collab.works.2025@gmail.com"

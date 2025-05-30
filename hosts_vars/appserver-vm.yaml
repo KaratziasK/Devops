@@ -1,0 +1,6 @@
+app:
+  env:
+    server.port: "{{app_port}}"
+    spring.datasource.username: appuser
+    spring.datasource.password: apppassword
+    spring.datasource.url: jdbc:postgresql://dbserver:5432/appdb
