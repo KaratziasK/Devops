@@ -133,6 +133,10 @@
             owner: "{{ db.user }}"
           become: yes
           become_user: postgres 
+        
+        - name: vars 
+          debug:
+            var: db
 
   handlers:
   # Επανεκκινεί την υπηρεσία postgresql όταν κληθεί από κάποιο task.
