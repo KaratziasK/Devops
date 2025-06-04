@@ -22,7 +22,7 @@ services:
     image: sp
     build:
       context: /tmp/project
-      dockerfile: /tmp/project/devops/nonroot-multistage.Dockerfile
+      dockerfile: /tmp/project/nonroot-multistage.Dockerfile
     ports:
       - "8080:8080"
     depends_on:

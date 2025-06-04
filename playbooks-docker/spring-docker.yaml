@@ -18,16 +18,18 @@
     - name: "Clone the Spring repository"
       git:
         repo: "https://github.com/KaratziasK/DS-project.git"
-        dest: "{{ appdir }}" #/tmp/project
+        dest: "{{ appdir }}"
         version: "{{ branch }}"
         force: yes
-        
-    # - name: "Clone the DEVOPS FILES"
-    #   git: # copy docker compose & Dockerfile   apo edw sto vm
-    #     repo: "https://github.com/KaratziasK/DS-project.git"
-    #     dest: "{{ appdir }}" #/tmp/project
-    #     version: "{{ branch }}"
-    #     force: yes
+
+    - name: Copy docker-compose.yaml and Dockerfile into appdir
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ appdir }}/{{ item.dest }}"
+        mode: '0644'
+      loop:
+        - { src: "../playbooks-docker/docker-compose.yaml", dest: "docker-compose.yaml" }
+        - { src: "../playbooks-docker/nonroot-multistage.Dockerfile", dest: "nonroot-multistage.Dockerfile" }
 
     - name: "Populate application.properties for DB"
       lineinfile:
@@ -51,13 +53,13 @@
 # Σταματά και αφαιρεί όλα τα containers και networks που ορίζονται στο docker-compose.yaml. (Τα volumes παραμένουν)
     - name: Tear down existing services
       community.docker.docker_compose_v2:
-        project_src: "{{ appdir }}/devops"
+        project_src: "{{ appdir }}"
         state: absent
 
 # Εκτελεί το docker-compose.yaml: κάνει build και ξεκινά τα services σε detached mode
     - name: Create and start services
       community.docker.docker_compose_v2:
-        project_src: "{{ appdir }}/devops"
+        project_src: "{{ appdir }}"
         build: always
         state: present
       register: output
@@ -66,7 +68,7 @@
 # Περιμένει μέχρι το container devops-db-1 να είναι healthy (δηλαδή η βάση PostgreSQL να δέχεται connections)
     - name: Wait for PostgreSQL container to be healthy
       shell: |
-        until [ "$(docker inspect -f '{{ '{{' }}.State.Health.Status{{ '}}' }}' devops-db-1)" == "healthy" ]; do
+        until [ "$(docker inspect -f '{{ '{{' }}.State.Health.Status{{ '}}' }}' project-db-1)" == "healthy" ]; do
           echo "Waiting for db to become healthy..."
           sleep 2
         done
@@ -74,23 +76,24 @@
         executable: /bin/bash
 
     - name: Check if 'colab' database exists in PostgreSQL container
-      shell: docker exec devops-db-1 psql -U myapp_user -tAc "SELECT 1 FROM pg_database WHERE datname='colab'"
+      shell: docker exec project-db-1 psql -U myapp_user -tAc "SELECT 1 FROM pg_database WHERE datname='colab'"
       register: check_db_exists
       changed_when: false
       failed_when: false
 
     - name: Create 'colab' database inside PostgreSQL container
-      shell: docker exec devops-db-1 createdb -U myapp_user colab
+      shell: docker exec project-db-1 createdb -U myapp_user colab
       args:
         executable: /bin/bash
       when: "'1' not in check_db_exists.stdout"
       failed_when: false
 
+
 # Επανεκκινεί όλα τα services που ορίζονται στο docker-compose.yaml
   handlers:
   - name: Restart Docker Compose
     community.docker.docker_compose_v2:
-      project_src: "{{ appdir }}/devops"
+      project_src: "{{ appdir }}"
       state: restarted
 
 
