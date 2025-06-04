@@ -1,0 +1,10 @@
+app_docker:
+  env:
+    server.port: "{{app_port}}"
+    spring.datasource.url: jdbc:postgresql://db:5432/colab
+    spring.datasource.username: myapp_user
+    spring.datasource.password: myapp_password
+
+EMAIL_USERNAME: "collab.works.2025@gmail.com"
+EMAIL_PASSWORD: "to_be_defined" # for safety reasons
+

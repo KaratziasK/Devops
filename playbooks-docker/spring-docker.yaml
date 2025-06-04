@@ -1,5 +1,5 @@
 ---
-- hosts: docker
+- hosts: appserver-docker
 
   tasks:
     - name: Check if Docker is installed
@@ -21,6 +21,13 @@
         dest: "{{ appdir }}" #/tmp/project
         version: "{{ branch }}"
         force: yes
+        
+    # - name: "Clone the DEVOPS FILES"
+    #   git: # copy docker compose & Dockerfile   apo edw sto vm
+    #     repo: "https://github.com/KaratziasK/DS-project.git"
+    #     dest: "{{ appdir }}" #/tmp/project
+    #     version: "{{ branch }}"
+    #     force: yes
 
     - name: "Populate application.properties for DB"
       lineinfile:
@@ -31,6 +38,15 @@
       with_items:
         - "{{ app_docker.env | dict2items }}"
 
+    - name: "Populate application.properties with email credentials"
+      lineinfile:
+        dest: "{{ application_properties_dir }}"
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        state: present
+      with_items:
+        - { regexp: '^spring.mail.username=', line: "spring.mail.username={{ EMAIL_USERNAME }}" }
+        - { regexp: '^spring.mail.password=', line: "spring.mail.password={{ EMAIL_PASSWORD }}" }
 
 # Σταματά και αφαιρεί όλα τα containers και networks που ορίζονται στο docker-compose.yaml. (Τα volumes παραμένουν)
     - name: Tear down existing services
@@ -57,14 +73,18 @@
       args:
         executable: /bin/bash
 
-# Αν η βάση δεδομένων "colab" δεν υπάρχει, την δημιουργεί μέσα στο container devops-db-1
-    - name: Create 'colab' database inside PostgreSQL container if it does not exist
-      shell: |
-        docker exec devops-db-1 psql -U myapp_user -tc "SELECT 1 FROM pg_database WHERE datname = 'colab'" | grep -q 1 || \
-        docker exec devops-db-1 createdb -U myapp_user colab
+    - name: Check if 'colab' database exists in PostgreSQL container
+      shell: docker exec devops-db-1 psql -U myapp_user -tAc "SELECT 1 FROM pg_database WHERE datname='colab'"
+      register: check_db_exists
+      changed_when: false
+      failed_when: false
+
+    - name: Create 'colab' database inside PostgreSQL container
+      shell: docker exec devops-db-1 createdb -U myapp_user colab
       args:
         executable: /bin/bash
-
+      when: "'1' not in check_db_exists.stdout"
+      failed_when: false
 
 # Επανεκκινεί όλα τα services που ορίζονται στο docker-compose.yaml
   handlers:

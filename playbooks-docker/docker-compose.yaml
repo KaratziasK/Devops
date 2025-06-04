@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:16
+    expose:
+      - 5432
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=myapp_user
+      - POSTGRES_PASSWORD=myapp_password
+      - POSTGRES_DB=colab
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U postgres
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    volumes:
+      - 'dsprojectdb:/var/lib/postgresql/data/'
+  spring:
+    image: sp
+    build:
+      context: /tmp/project
+      dockerfile: /tmp/project/devops/nonroot-multistage.Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/colab
+      - SPRING_DATASOURCE_USERNAME=myapp_user
+      - SPRING_DATASOURCE_PASSWORD=myapp_password
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+volumes:
+  dsprojectdb:
+

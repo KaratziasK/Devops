@@ -1,14 +1,7 @@
 ---
-- hosts: appservers
+- hosts: appserver-vm
 
   pre_tasks:
-    - name: Debug appdir
-      debug:
-        var: appdir
-
-    - name: Debug app.env
-      debug:
-        var: app.env
 
     - name: Check if java exists
       command: java -version
@@ -61,7 +54,7 @@
           line: "{{ item.line }}"
           state: present
         with_items:
-          - { regexp: '^spring.mail.username=', line: "spring.mail.username={{ app.env.EMAIL_USERNAME }}" }
+          - { regexp: '^spring.mail.username=', line: "spring.mail.username={{ EMAIL_USERNAME }}" }
           - { regexp: '^spring.mail.password=', line: "spring.mail.password={{ EMAIL_PASSWORD }}" }
 
 
