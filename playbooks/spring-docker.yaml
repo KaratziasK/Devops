@@ -1,0 +1,76 @@
+---
+- hosts: docker
+
+  tasks:
+    - name: Check if Docker is installed
+      shell: docker --version && docker compose version
+      register: docker_version_result
+      ignore_errors: true
+
+    - name: Set Docker installed fact
+      set_fact:
+        docker_installed: "{{ docker_version_result.rc == 0 }}"
+
+    - name: Include install_docker playbook if Docker is not installed
+      include_tasks: install-docker.yaml
+      when: not docker_installed
+
+    - name: "Clone the Spring repository"
+      git:
+        repo: "https://github.com/KaratziasK/DS-project.git"
+        dest: "{{ appdir }}" #/tmp/project
+        version: "{{ branch }}"
+        force: yes
+
+    - name: "Populate application.properties for DB"
+      lineinfile:
+        dest: "{{ application_properties_dir }}"
+        state: present
+        regexp: "^{{item.key}}="
+        line: "{{item.key}}={{item.value}}"
+      with_items:
+        - "{{ app_docker.env | dict2items }}"
+
+
+# Σταματά και αφαιρεί όλα τα containers και networks που ορίζονται στο docker-compose.yaml. (Τα volumes παραμένουν)
+    - name: Tear down existing services
+      community.docker.docker_compose_v2:
+        project_src: "{{ appdir }}/devops"
+        state: absent
+
+# Εκτελεί το docker-compose.yaml: κάνει build και ξεκινά τα services σε detached mode
+    - name: Create and start services
+      community.docker.docker_compose_v2:
+        project_src: "{{ appdir }}/devops"
+        build: always
+        state: present
+      register: output
+      notify: Restart Docker Compose
+
+# Περιμένει μέχρι το container devops-db-1 να είναι healthy (δηλαδή η βάση PostgreSQL να δέχεται connections)
+    - name: Wait for PostgreSQL container to be healthy
+      shell: |
+        until [ "$(docker inspect -f '{{ '{{' }}.State.Health.Status{{ '}}' }}' devops-db-1)" == "healthy" ]; do
+          echo "Waiting for db to become healthy..."
+          sleep 2
+        done
+      args:
+        executable: /bin/bash
+
+# Αν η βάση δεδομένων "colab" δεν υπάρχει, την δημιουργεί μέσα στο container devops-db-1
+    - name: Create 'colab' database inside PostgreSQL container if it does not exist
+      shell: |
+        docker exec devops-db-1 psql -U myapp_user -tc "SELECT 1 FROM pg_database WHERE datname = 'colab'" | grep -q 1 || \
+        docker exec devops-db-1 createdb -U myapp_user colab
+      args:
+        executable: /bin/bash
+
+
+# Επανεκκινεί όλα τα services που ορίζονται στο docker-compose.yaml
+  handlers:
+  - name: Restart Docker Compose
+    community.docker.docker_compose_v2:
+      project_src: "{{ appdir }}/devops"
+      state: restarted
+
+
