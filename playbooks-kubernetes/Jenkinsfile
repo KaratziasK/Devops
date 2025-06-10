@@ -27,7 +27,7 @@ stages {
 
     stage('Docker build and push') {
             steps {
-                dir('playbooks-docker')
+                dir('playbooks-docker'){
                 sh '''
                     HEAD_COMMIT=$(git rev-parse --short HEAD)   
                     TAG=$HEAD_COMMIT-$BUILD_ID
@@ -38,6 +38,7 @@ stages {
                     echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
                     docker push $DOCKER_PREFIX --all-tags
                 '''
+                }
             }
         }
 
