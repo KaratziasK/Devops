@@ -25,22 +25,37 @@ stages {
         }
     }
 
-    stage('Docker build and push') {
-            steps {
-                dir('playbooks-docker'){
-                sh '''
-                    HEAD_COMMIT=$(git rev-parse --short HEAD)   
-                    TAG=$HEAD_COMMIT-$BUILD_ID
-                    docker build --rm -t $DOCKER_PREFIX:$TAG -t $DOCKER_PREFIX:latest -f nonroot-multistage.Dockerfile .
-                '''
+    // stage('Docker build and push') {
+    //         steps {
+    //             dir('playbooks-docker'){
+    //             sh '''
+    //                 HEAD_COMMIT=$(git rev-parse --short HEAD)   
+    //                 TAG=$HEAD_COMMIT-$BUILD_ID
+    //                 docker build --rm -t $DOCKER_PREFIX:$TAG -t $DOCKER_PREFIX:latest -f nonroot-multistage.Dockerfile .
+    //             '''
 
-                sh '''
-                    echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
-                    docker push $DOCKER_PREFIX --all-tags
-                '''
-                }
-            }
-        }
+    //             sh '''
+    //                 echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
+    //                 docker push $DOCKER_PREFIX --all-tags
+    //             '''
+    //             }
+    //         }
+    //     }
+
+stage('Docker build and push') {
+  steps {
+    // Εκτελούμε το docker build από το root, ώστε το context να περιλαμβάνει pom.xml και src/
+    sh '''
+      docker build \
+        -f playbooks-kubernetes/Dockerfile.app \
+        -t ghcr.io/karatziask/ds-project:${GIT_COMMIT}-${BUILD_NUMBER} \
+        -t ghcr.io/karatziask/ds-project:latest \
+        .
+      docker push ghcr.io/karatziask/ds-project:${GIT_COMMIT}-${BUILD_NUMBER}
+      docker push ghcr.io/karatziask/ds-project:latest
+    '''
+  }
+}
 
 }
 
