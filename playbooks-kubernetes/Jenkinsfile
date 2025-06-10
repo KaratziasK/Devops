@@ -44,15 +44,14 @@ stages {
 
 stage('Docker build and push') {
   steps {
-    // Εκτελούμε το docker build από το root, ώστε το context να περιλαμβάνει pom.xml και src/
     sh '''
       docker build \
-        -f playbooks-kubernetes/Dockerfile.app \
-        -t ghcr.io/karatziask/ds-project:${GIT_COMMIT}-${BUILD_NUMBER} \
-        -t ghcr.io/karatziask/ds-project:latest \
+        -f playbooks-kubernetes/nonroot-multistage.Dockerfile \
+        -t $DOCKER_PREFIX:${GIT_COMMIT}-${BUILD_NUMBER} \
+        -t $DOCKER_PREFIX:latest \
         .
-      docker push ghcr.io/karatziask/ds-project:${GIT_COMMIT}-${BUILD_NUMBER}
-      docker push ghcr.io/karatziask/ds-project:latest
+      echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
+      docker push $DOCKER_PREFIX --all-tags
     '''
   }
 }
