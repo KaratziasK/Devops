@@ -16,7 +16,6 @@ stages {
     stage('Test') {
         steps {
             sh '''
-                cd DS-project
                 pwd
                 echo "Start testing"
                 ./mvnw test
