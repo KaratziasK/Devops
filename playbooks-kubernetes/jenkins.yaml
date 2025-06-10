@@ -1,0 +1,76 @@
+---
+- name: Install Jenkins on VM
+  hosts: postgres-azure
+  become: yes
+
+  tasks:
+    - name: Check if Docker is installed
+      shell: docker --version && docker compose version
+      register: docker_version_result
+      ignore_errors: true
+
+    - name: Set Docker installed fact
+      set_fact:
+        docker_installed: "{{ docker_version_result.rc == 0 }}"
+
+    - name: Include install_docker playbook if Docker is not installed
+      include_tasks: install-docker.yaml
+      when: not docker_installed
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Ensure OpenJDK 21 is installed
+      apt:
+        name: openjdk-21-jdk
+        state: present
+
+    - name: Ensure /etc/apt/keyrings directory exists
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Check if Jenkins GPG key exists
+      stat:
+        path: /etc/apt/keyrings/jenkins-keyring.asc
+      register: jenkins_key
+
+    - name: Download Jenkins GPG key
+      get_url:
+        url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+        dest: /etc/apt/keyrings/jenkins-keyring.asc
+        mode: '0644'
+      when: not jenkins_key.stat.exists
+
+    - name: Check if Jenkins repository exists
+      stat:
+        path: /etc/apt/sources.list.d/jenkins.list
+      register: jenkins_repo
+
+    - name: Add Jenkins apt repository
+      apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
+        filename: jenkins
+      when: not jenkins_repo.stat.exists
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Ensure Jenkins is installed
+      apt:
+        name: jenkins
+        state: present
+
+    - name: Add jenkins user to docker group
+      user:
+        name: jenkins
+        groups: docker
+        append: yes
+
+    - name: Restart Jenkins service
+      systemd:
+        name: jenkins
+        state: restarted
