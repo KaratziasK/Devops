@@ -21,6 +21,7 @@ stages {
     stage('Clone DS-project') {
         when {
                 expression { return params.CLONE_REPO }
+        }
         steps {
             build job: 'DS-project'
         }
@@ -42,6 +43,7 @@ stages {
     stage('Docker build and push') {
         when {
                 expression { return params.DOCKER_BUILD_PUSH }
+        }
     steps {
         sh '''
         # Εδώ υποθέτουμε $WORKSPACE = /var/lib/jenkins/workspace/run-app-pipeline
