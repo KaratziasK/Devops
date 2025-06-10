@@ -12,6 +12,12 @@ environment {
 
 stages {
 
+    stage('Clone DS-project') {
+        steps {
+            build job: 'DS-project'
+        }
+    }
+
 
     stage('Tests Spring-Boot') {
         steps {
@@ -25,41 +31,24 @@ stages {
         }
     }
 
-    // stage('Docker build and push') {
-    //         steps {
-    //             dir('playbooks-docker'){
-    //             sh '''
-    //                 HEAD_COMMIT=$(git rev-parse --short HEAD)   
-    //                 TAG=$HEAD_COMMIT-$BUILD_ID
-    //                 docker build --rm -t $DOCKER_PREFIX:$TAG -t $DOCKER_PREFIX:latest -f nonroot-multistage.Dockerfile .
-    //             '''
+    stage('Docker build and push') {
+    steps {
+        sh '''
+        # Εδώ υποθέτουμε $WORKSPACE = /var/lib/jenkins/workspace/run-app-pipeline
+        APP_WS=$(dirname "$WORKSPACE")/DS-project
 
-    //             sh '''
-    //                 echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
-    //                 docker push $DOCKER_PREFIX --all-tags
-    //             '''
-    //             }
-    //         }
-    //     }
+        docker build \
+            -f $WORKSPACE/playbooks-docker/nonroot-multistage.Dockerfile \
+            -t $DOCKER_PREFIX:${GIT_COMMIT}-${BUILD_NUMBER} \
+            -t $DOCKER_PREFIX:latest \
+            "$APP_WS"
 
-stage('Docker build and push') {
-  steps {
-    sh '''
-      # Εδώ υποθέτουμε $WORKSPACE = /var/lib/jenkins/workspace/run-app-pipeline
-      APP_WS=$(dirname "$WORKSPACE")/DS-project
-
-      docker build \
-        -f $WORKSPACE/playbooks-docker/nonroot-multistage.Dockerfile \
-        -t $DOCKER_PREFIX:${GIT_COMMIT}-${BUILD_NUMBER} \
-        -t $DOCKER_PREFIX:latest \
-        "$APP_WS"
-
-      echo "$DOCKER_TOKEN" | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
-      docker push $DOCKER_PREFIX:${GIT_COMMIT}-${BUILD_NUMBER}
-      docker push $DOCKER_PREFIX:latest
-    '''
-  }
-}
+        echo "$DOCKER_TOKEN" | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
+        docker push $DOCKER_PREFIX:${GIT_COMMIT}-${BUILD_NUMBER}
+        docker push $DOCKER_PREFIX:latest
+        '''
+        }
+    }
 
 
 }
