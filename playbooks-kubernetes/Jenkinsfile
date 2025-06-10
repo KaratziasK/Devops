@@ -45,16 +45,22 @@ stages {
 stage('Docker build and push') {
   steps {
     sh '''
+      # Εδώ υποθέτουμε $WORKSPACE = /var/lib/jenkins/workspace/run-app-pipeline
+      APP_WS=$(dirname "$WORKSPACE")/DS-project
+
       docker build \
-        -f playbooks-kubernetes/nonroot-multistage.Dockerfile \
+        -f $WORKSPACE/playbooks-docker/nonroot-multistage.Dockerfile \
         -t $DOCKER_PREFIX:${GIT_COMMIT}-${BUILD_NUMBER} \
         -t $DOCKER_PREFIX:latest \
-        .
-      echo $DOCKER_TOKEN | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
-      docker push $DOCKER_PREFIX --all-tags
+        "$APP_WS"
+
+      echo "$DOCKER_TOKEN" | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
+      docker push $DOCKER_PREFIX:${GIT_COMMIT}-${BUILD_NUMBER}
+      docker push $DOCKER_PREFIX:latest
     '''
   }
 }
+
 
 }
 
