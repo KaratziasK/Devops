@@ -49,7 +49,7 @@ stages {
         }
     steps {
         sh '''
-        # Εδώ υποθέτουμε $WORKSPACE = /var/lib/jenkins/workspace/run-app-pipeline
+        # Εδώ υποθέτουμε $WORKSPACE = /var/lib/jenkins/workspace/test-project-and-push-packages
         APP_WS=$(dirname "$WORKSPACE")/DS-project
 
         docker build \
