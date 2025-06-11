@@ -10,10 +10,10 @@ environment {
     }
 
 parameters {
-        booleanParam(name: 'INSTALL_POSTGRES', defaultValue: true, description: 'Install PostgreSQL')
-        booleanParam(name: 'INSTALL_SPRING', defaultValue: true, description: 'Install Spring Boot app')
-        booleanParam(name: 'DOCKER_BUILD_PUSH', defaultValue: true, description: 'Docker build and push packages')
         booleanParam(name: 'CLONE_REPO', defaultValue: true, description: 'Clone DS-project')
+        booleanParam(name: 'RUN_SPRINGBOOT_TESTS', defaultValue: true, description: 'Run tests for DS-project')
+        booleanParam(name: 'DOCKER_BUILD_PUSH', defaultValue: true, description: 'Docker build and push packages')
+        
     }
 
 stages {
@@ -29,6 +29,9 @@ stages {
 
 
     stage('Tests Spring-Boot') {
+        when {
+                expression { return params.RUN_SPRINGBOOT_TESTS }
+        }
         steps {
             sh '''
                 pwd
