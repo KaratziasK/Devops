@@ -6,23 +6,19 @@
       namespace: default
       deployment_name: spring-deployment
       container_name: spring
-      new_image: "ghcr.io/karatziask/ds-project:latest"
+      #new_image: "ghcr.io/karatziask/ds-project:latest"
 
     tasks:
-      - name: Update the deployment image
-        kubernetes.core.k8s:
-          state: present
+      - name: Patch deployment image
+        kubernetes.core.k8s_json_patch:
           kubeconfig: "/var/lib/jenkins/.kube/devops-microk8s"
-          namespace: "{{ namespace }}"
           kind: Deployment
+          namespace: "{{ namespace }}"
           name: "{{ deployment_name }}"
-          definition:
-            spec:
-              template:
-                spec:
-                  containers:
-                    - name: "{{ container_name }}"
-                      image: "{{ new_image }}"
+          patch:
+            - op: replace
+              path: /spec/template/spec/containers/0/image
+              value: "{{ new_image }}"
 
 
       - name: Wait for rollout to complete
