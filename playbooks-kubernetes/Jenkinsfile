@@ -10,22 +10,33 @@ environment {
     }
 
 parameters {
-        booleanParam(name: 'CLONE_REPO', defaultValue: true, description: 'Clone DS-project')
+        booleanParam(name: 'CLONE_REPO_DS-Project', defaultValue: true, description: 'Clone DS-project')
+        booleanParam(name: 'CLONE_REPO_WITH_ANSIBLE', defaultValue: true, description: 'Clone Devops repo')
         booleanParam(name: 'RUN_SPRINGBOOT_TESTS', defaultValue: true, description: 'Run tests for DS-project')
         booleanParam(name: 'DOCKER_BUILD_PUSH', defaultValue: true, description: 'Docker build and push packages')
-        
+        booleanParam(name: 'UPDATE_MICROK8S_WITH_NEW_IMAGES', defaultValue: true, description: 'Rollout with new images')
     }
 
 stages {
 
-    stage('Clone DS-project') {
+    stage('Clone repo DS-project') {
         when {
-                expression { return params.CLONE_REPO }
+                expression { return params.CLONE_REPO_DS-Project }
         }
         steps {
             build job: 'DS-project'
         }
     }
+
+    stage('Clone repo Devops') {
+        when {
+                expression { return params.CLONE_REPO_WITH_ANSIBLE }
+        }
+        steps {
+            build job: 'ansible-playbooks'
+        }
+}
+
 
 
     stage('Tests Spring-Boot') {
@@ -66,12 +77,15 @@ stages {
     }
 
     stage('deploy to kubernetes') {
+        when {
+                expression { return params.UPDATE_MICROK8S_WITH_NEW_IMAGES }
+        }
             steps {
                 sh '''
                     HEAD_COMMIT=$(git rev-parse --short HEAD)
                     TAG=$HEAD_COMMIT-$BUILD_ID
-                    export ANSIBLE_CONFIG=~/workspace/ansible/ansible.cfg
-                    ansible-playbook -i ~/workspace/ansible/hosts.yaml -e new_image=$DOCKER_PREFIX:$TAG ~/workspace/ansible/playbooks-microk8s/k8s-update-spring-deployment.yaml
+                    export ANSIBLE_CONFIG=$WORKSPACE/ansible-playbooks/ansible.cfg
+                    ansible-playbook -i ~/workspace/ansible-playbooks/hosts.yaml -e new_image=$DOCKER_PREFIX:$TAG ~/workspace/ansible-playbooks/playbooks-microk8s/k8s-update-spring-deployment.yaml
                 '''
             }
         }
