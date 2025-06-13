@@ -60,17 +60,21 @@ stages {
         }
     steps {
         sh '''
-        # Εδώ υποθέτουμε $WORKSPACE = /var/lib/jenkins/workspace/test-project-and-push-packages
         APP_WS=$(dirname "$WORKSPACE")/DS-project
+
+        # Create tag
+        HEAD_COMMIT=$(git rev-parse --short HEAD)
+        TAG=${HEAD_COMMIT}-${BUILD_NUMBER}
+        echo "Using TAG: $TAG"
 
         docker build \
             -f $WORKSPACE/playbooks-docker/nonroot-multistage.Dockerfile \
-            -t $DOCKER_PREFIX:${GIT_COMMIT}-${BUILD_NUMBER} \
+            -t $DOCKER_PREFIX:$TAG \
             -t $DOCKER_PREFIX:latest \
             "$APP_WS"
 
         echo "$DOCKER_TOKEN" | docker login $DOCKER_SERVER -u $DOCKER_USER --password-stdin
-        docker push $DOCKER_PREFIX:${GIT_COMMIT}-${BUILD_NUMBER}
+        docker push $DOCKER_PREFIX:$TAG
         docker push $DOCKER_PREFIX:latest
         '''
         }
