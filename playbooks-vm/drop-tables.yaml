@@ -1,5 +1,5 @@
 ---
-- hosts: postgres-azure
+- hosts: dbservers-vagrant
   become: yes
   become_user: root
   tasks:

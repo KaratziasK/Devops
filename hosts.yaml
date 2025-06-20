@@ -1,5 +1,5 @@
 ---
-# Postgres on VM and Jenkins Server (CI/CD)
+# Jenkins Server (CI/CD)
 dbservers:
   hosts:
     postgres-azure:
@@ -7,7 +7,7 @@ dbservers:
       ansible_user: ds-azure
       ansible_ssh_private_key_file: ~/.ssh/id_rsa
 
-# Spring on VM and microk8s
+# microk8s
 appservers:
     hosts:
       appserver-vm:  
@@ -22,3 +22,19 @@ docker:
         ansible_host: 20.123.91.17
         ansible_user: azureuser
         ansible_ssh_private_key_file: ~/.ssh/id_rsa
+
+# Spring on VM
+appserver-vagrant:
+  hosts:
+    vagrant-appserver:
+      ansible_host: 192.168.56.101
+      ansible_user: vagrant
+      ansible_ssh_private_key_file: ~/.ssh/id_devops
+
+# DB on VM
+dbservers-vagrant:
+  hosts:
+    vagrant-dbserver:
+      ansible_host: 192.168.56.102
+      ansible_user: vagrant
+      ansible_ssh_private_key_file: ~/.ssh/id_devops

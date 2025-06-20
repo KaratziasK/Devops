@@ -1,5 +1,5 @@
 ---
-- hosts: appserver-vm
+- hosts: appserver-vagrant
 
   pre_tasks:
 

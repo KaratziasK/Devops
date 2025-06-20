@@ -1,0 +1,17 @@
+Vagrant.configure("2") do |config|
+  config.hostmanager.enabled = true
+  config.vm.box = "ubuntu/jammy64"
+
+  config.vm.define "appserver-vm" do |h|
+    h.vm.hostname = "appserver-vm"
+    h.vm.network "private_network", ip: "192.168.56.101"
+    h.vm.network "forwarded_port", guest: 8080, host: 8080
+  end
+
+  config.vm.define "dbserver-vm" do |h|
+    h.vm.hostname = "dbserver-vm"
+    h.vm.network "private_network", ip: "192.168.56.102"
+    h.vm.network "forwarded_port", guest: 5432, host: 5432
+  end
+
+end

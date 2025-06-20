@@ -1,5 +1,5 @@
 ---
-- hosts: postgres-azure
+- hosts: dbservers-vagrant
   become: yes
   become_user: root
 
@@ -75,7 +75,7 @@
     # Προσθέτει entry στον pg_hba.conf ώστε ο χρήστης db.user να συνδέεται από 0.0.0.0/0 με μέθοδο md5 και ειδοποιεί για επανεκκίνηση.
     - name: edit pg_hba.conf
       lineinfile:
-        path: /etc/postgresql/16/main/pg_hba.conf
+        path: /etc/postgresql/{{ postgres_version }}/main/pg_hba.conf
         line: "host all all 0.0.0.0/0 md5"
         create: yes
       notify: restart postgres
