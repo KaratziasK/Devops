@@ -2,4 +2,4 @@ db:
   name: "myapp_db"
   user: "myapp_user"
   password: "myapp_password"
-  url: "jdbc:postgresql://52.236.122.57:5432/myapp_db"
+  url: "jdbc:postgresql://68.219.225.55:5432/myapp_db"

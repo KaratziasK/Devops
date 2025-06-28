@@ -1,5 +1,5 @@
 ---
-- hosts: appserver-vagrant
+- hosts: app-server-vm
 
   pre_tasks:
 
@@ -63,10 +63,16 @@
         args:
             chdir: "/tmp/project"
 
-      # - name: "Run the Spring application"
-      #   command: "java -jar target/dsproject-0.0.1-SNAPSHOT.jar"
-      #   args:
-      #       chdir: "{{ appdir }}"
+      - name: Ensure /home/azureuser/app exists
+        file:
+          path: "{{jar_dir}}"
+          state: directory
+          owner: "{{ appuser }}"
+          group: "{{ appgroup }}"
+          mode: '0755'
+
+      - name: "Move JAR file to /home/azureuser/app"
+        command: mv {{ appdir }}/target/dsproject-0.0.1-SNAPSHOT.jar {{jar_dir}}
 
       - name: Check if nginx is installed
         command: nginx -v

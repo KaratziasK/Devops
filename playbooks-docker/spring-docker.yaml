@@ -1,5 +1,5 @@
 ---
-- hosts: appserver-docker
+- hosts: docker-vm
 
   tasks:
     - name: Check if Docker is installed
@@ -28,8 +28,8 @@
         dest: "{{ appdir }}/{{ item.dest }}"
         mode: '0644'
       loop:
-        - { src: "../playbooks-docker/docker-compose.yaml", dest: "docker-compose.yaml" }
-        - { src: "../playbooks-docker/nonroot-multistage.Dockerfile", dest: "nonroot-multistage.Dockerfile" }
+        - { src: "docker-compose.yaml", dest: "docker-compose.yaml" }
+        - { src: "nonroot-multistage.Dockerfile", dest: "nonroot-multistage.Dockerfile" }
 
     - name: "Populate application.properties for DB"
       lineinfile:
@@ -50,11 +50,19 @@
         - { regexp: '^spring.mail.username=', line: "spring.mail.username={{ EMAIL_USERNAME }}" }
         - { regexp: '^spring.mail.password=', line: "spring.mail.password={{ EMAIL_PASSWORD }}" }
 
+    - name: Check if Docker Compose project is running
+      command: docker compose -f {{ appdir }}/docker-compose.yaml ps -q
+      register: running_services
+      changed_when: false
+      failed_when: false
+
 # Σταματά και αφαιρεί όλα τα containers και networks που ορίζονται στο docker-compose.yaml. (Τα volumes παραμένουν)
-    - name: Tear down existing services
+    - name: Tear down existing services if they exist
       community.docker.docker_compose_v2:
         project_src: "{{ appdir }}"
         state: absent
+      when: running_services.stdout != ""
+
 
 # Εκτελεί το docker-compose.yaml: κάνει build και ξεκινά τα services σε detached mode
     - name: Create and start services

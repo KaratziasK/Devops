@@ -1,20 +1,21 @@
 appdir:  "/tmp/project"
+jar_dir: "/home/azureuser/app"
 branch: "main"
 app_port: 8080
 application_properties_dir: "/tmp/project/src/main/resources/application.properties"
-appuser: vagrant
-appgroup: vagrant
+appuser: azureuser
+appgroup: azureuser
 
 app:
-  VITE_BACKEND: http://192.168.56.101:8080
+  VITE_BACKEND: http://98.71.56.72:8080
   env:
     server.port: '{{app_port}}'
-    spring.datasource.url: jdbc:postgresql://192.168.56.102:5432/myapp_db
+    spring.datasource.url: jdbc:postgresql://68.219.225.55:5432/myapp_db
     spring.datasource.username: myapp_user
     spring.datasource.password: myapp_password
 EMAIL_USERNAME: collab.works.2025@gmail.com
 EMAIL_PASSWORD: to_be_defined
 
 service:
-  workingdir: '{{ appdir }}'
-  execstart: java -jar {{ appdir }}/target/dsproject-0.0.1-SNAPSHOT.jar
+  workingdir: '{{ jar_dir }}'
+  execstart: java -jar {{ jar_dir }}/dsproject-0.0.1-SNAPSHOT.jar

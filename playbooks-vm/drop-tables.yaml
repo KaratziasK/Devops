@@ -1,5 +1,5 @@
 ---
-- hosts: dbservers-vagrant
+- hosts: db-server-vm
   become: yes
   become_user: root
   tasks:

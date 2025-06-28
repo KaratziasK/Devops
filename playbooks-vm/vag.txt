@@ -1,0 +1,10 @@
+Host vagrant-appserver
+  HostName 192.168.56.101
+  User vagrant
+  IdentityFile ~/.ssh/id_devops
+
+Host vagrant-dbserver
+  HostName 192.168.56.102
+  User vagrant
+  IdentityFile ~/.ssh/id_devops
+

@@ -18,19 +18,17 @@ appservers:
 # Docker
 docker:
     hosts:
-      appserver-docker:
-        ansible_host: 20.123.91.17
-        ansible_user: azureuser
-        ansible_ssh_private_key_file: ~/.ssh/id_rsa
+      docker-vm:
+        ansible_host: docker-vm
 
 # Spring on VM
-appserver-vagrant:
+appserver:
   hosts:
-    vagrant-appserver:
-      ansible_host: vagrant-appserver
+    app-server-vm:
+      ansible_host: app-server-vm
 
 # DB on VM
-dbservers-vagrant:
+dbserver:
   hosts:
-    vagrant-dbserver:
-      ansible_host: vagrant-dbserver
+    db-server-vm:
+      ansible_host: db-server-vm

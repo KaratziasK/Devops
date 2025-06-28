@@ -1,5 +1,5 @@
 - name: Drop PostgreSQL database from container host
-  hosts: appserver-docker
+  hosts: docker-vm
   become: yes
   vars:
     db_name: colab
