@@ -27,14 +27,15 @@ docker:
 appserver-vagrant:
   hosts:
     vagrant-appserver:
-      ansible_host: 192.168.56.101
-      ansible_user: vagrant
-      ansible_ssh_private_key_file: ~/.ssh/id_devops
+      ansible_host: vagrant-appserver
+      # ansible_user: vagrant
+      # ansible_ssh_private_key_file: ~/.ssh/id_devops
 
 # DB on VM
 dbservers-vagrant:
   hosts:
     vagrant-dbserver:
-      ansible_host: 192.168.56.102
-      ansible_user: vagrant
-      ansible_ssh_private_key_file: ~/.ssh/id_devops
+      ansible_host: vagrant-dbserver
+    #   ansible_host: 192.168.56.102
+    #   ansible_user: vagrant
+    #   ansible_ssh_private_key_file: ~/.ssh/id_devops
