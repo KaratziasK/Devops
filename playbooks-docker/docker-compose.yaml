@@ -18,11 +18,12 @@ services:
       retries: 3
     volumes:
       - 'dsprojectdb:/var/lib/postgresql/data/'
+    restart: always
   spring:
     image: sp
     build:
-      context: /tmp/project
-      dockerfile: /tmp/project/nonroot-multistage.Dockerfile
+      context: /home/azureuser/project
+      dockerfile: /home/azureuser/project/nonroot-multistage.Dockerfile
     ports:
       - "8080:8080"
     depends_on:
@@ -37,6 +38,7 @@ services:
       interval: 30s
       timeout: 100s
       retries: 3
+    restart: always
 
 volumes:
   dsprojectdb:

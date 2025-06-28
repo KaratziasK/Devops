@@ -1,6 +1,6 @@
 # group_vars/docker.yaml
-appdir: "/tmp/project"
-application_properties_dir: "/tmp/project/src/main/resources/application.properties"
+appdir: "/home/azureuser/project"
+application_properties_dir: "{{appdir}}/src/main/resources/application.properties"
 branch: "main"
 app_port: 8080
 

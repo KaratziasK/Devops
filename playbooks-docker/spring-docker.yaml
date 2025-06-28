@@ -66,6 +66,7 @@
 
 # Εκτελεί το docker-compose.yaml: κάνει build και ξεκινά τα services σε detached mode
     - name: Create and start services
+      become: true
       community.docker.docker_compose_v2:
         project_src: "{{ appdir }}"
         build: always
