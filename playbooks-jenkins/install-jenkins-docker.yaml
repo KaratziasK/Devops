@@ -1,6 +1,6 @@
 ---
 - name: Install Jenkins on VM
-  hosts: postgres-azure
+  hosts: jenkins-vm
   become: yes
 
   tasks:

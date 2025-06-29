@@ -2,18 +2,8 @@
 # Jenkins Server (CI/CD)
 dbservers:
   hosts:
-    postgres-azure:
-      ansible_host: 52.236.122.57
-      ansible_user: ds-azure
-      ansible_ssh_private_key_file: ~/.ssh/id_rsa
-
-# microk8s
-appservers:
-    hosts:
-      appserver-vm:  
-        ansible_host: 4.210.73.93
-        ansible_user: azure-spring
-        ansible_ssh_private_key_file: ~/.ssh/id_rsa
+    jenkins-vm:
+      ansible_host: jenkins-vm
 
 # Docker
 docker:
