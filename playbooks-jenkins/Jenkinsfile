@@ -10,7 +10,6 @@ environment {
     }
 
 parameters {
-        booleanParam(name: 'CLONE_REPO_DS_Project', defaultValue: true, description: 'Clone DS-project')
         booleanParam(name: 'CLONE_REPO_WITH_ANSIBLE', defaultValue: true, description: 'Clone Devops repo')
         booleanParam(name: 'RUN_SPRINGBOOT_TESTS', defaultValue: true, description: 'Run tests for DS-project')
         booleanParam(name: 'DOCKER_BUILD_PUSH', defaultValue: true, description: 'Docker build and push packages')
@@ -18,15 +17,6 @@ parameters {
     }
 
 stages {
-
-    stage('Clone repo DS-project') {
-        when {
-                expression { return params.CLONE_REPO_DS_Project }
-        }
-        steps {
-            build job: 'DS-project'
-        }
-    }
 
     stage('Clone repo Devops') {
         when {
@@ -36,8 +26,6 @@ stages {
             build job: 'ansible-playbooks'
         }
 }
-
-
 
     stage('Tests Spring-Boot') {
         when {
