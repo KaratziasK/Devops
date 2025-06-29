@@ -10,7 +10,7 @@ app:
   VITE_BACKEND: http://98.71.56.72:8080
   env:
     server.port: '{{app_port}}'
-    spring.datasource.url: jdbc:postgresql://68.219.225.55:5432/myapp_db
+    spring.datasource.url: jdbc:postgresql://128.251.16.135:5432/myapp_db
     spring.datasource.username: myapp_user
     spring.datasource.password: myapp_password
 EMAIL_USERNAME: collab.works.2025@gmail.com

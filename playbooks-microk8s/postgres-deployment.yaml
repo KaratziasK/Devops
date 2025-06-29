@@ -21,7 +21,7 @@ spec:
             - name: POSTGRES_USER
               value: dbuser
             - name: POSTGRES_DB
-              value: dsdb
+              value: collabdb
           image: postgres:16
           name: postgres
           ports:

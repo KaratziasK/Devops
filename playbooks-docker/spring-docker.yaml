@@ -74,30 +74,6 @@
       register: output
       notify: Restart Docker Compose
 
-# Περιμένει μέχρι το container devops-db-1 να είναι healthy (δηλαδή η βάση PostgreSQL να δέχεται connections)
-    - name: Wait for PostgreSQL container to be healthy
-      shell: |
-        until [ "$(docker inspect -f '{{ '{{' }}.State.Health.Status{{ '}}' }}' project-db-1)" == "healthy" ]; do
-          echo "Waiting for db to become healthy..."
-          sleep 2
-        done
-      args:
-        executable: /bin/bash
-
-    - name: Check if 'colab' database exists in PostgreSQL container
-      shell: docker exec project-db-1 psql -U myapp_user -tAc "SELECT 1 FROM pg_database WHERE datname='colab'"
-      register: check_db_exists
-      changed_when: false
-      failed_when: false
-
-    - name: Create 'colab' database inside PostgreSQL container
-      shell: docker exec project-db-1 createdb -U myapp_user colab
-      args:
-        executable: /bin/bash
-      when: "'1' not in check_db_exists.stdout"
-      failed_when: false
-
-
 # Επανεκκινεί όλα τα services που ορίζονται στο docker-compose.yaml
   handlers:
   - name: Restart Docker Compose

@@ -44,7 +44,7 @@ spec:
             memory: 512Mi
         env:
         - name: SPRING_DATASOURCE_URL
-          value: jdbc:postgresql://postgres:5432/dsdb
+          value: jdbc:postgresql://postgres:5432/collabdb
         - name: SPRING_DATASOURCE_USERNAME
           value: dbuser
         - name: SPRING_DATASOURCE_PASSWORD
