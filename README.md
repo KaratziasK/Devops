@@ -1,4 +1,4 @@
-# DevOps Project – Freelancing Platform Project
+# DevOps Project
 
 ## Description
 
